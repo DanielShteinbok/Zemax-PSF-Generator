@@ -16,7 +16,7 @@ def grid_to_csv(gridvals, csvpath, dims=(32,32)):
             rowvals = []
             for column in range(dims[1]):
                 # enter column value with comma into the csv
-                rowvals.append(gridvals.Get(column, row))
+                rowvals.append(gridvals.Get(column, rownum))
             # write out the rowvals array
             csvwriter.writerow(rowvals)
         # flush out to file; I guess csv.writer does this for each row under the hood.
