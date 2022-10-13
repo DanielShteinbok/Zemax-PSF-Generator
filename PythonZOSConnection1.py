@@ -100,7 +100,7 @@ print('Connected to OpticStudio')
 print('Serial #: ', TheApplication.SerialCode)
 
 # Insert Code Here
-import typing
+#import typing
 
 #psfWindow = TheSystem.Analyses.New_HuygensPsf()
 #psfWindow = TheSystem.Analyses.New_Analysis(ZOSAPI.Analysis.AnalysisIDM.HuygensPsf)
@@ -135,10 +135,15 @@ print("Number of grids: ", huygens_psf.GetResults().NumberOfDataGrids)
 print("Number of series: ", huygens_psf.GetResults().NumberOfDataSeries)
 print(huygens_psf.GetResults().GetDataGrid(0).Values)
 allValues = huygens_psf.GetResults().GetDataGrid(0).Values
-import numpy as np
 #print(np.asarray(allValues)[0,0])
 # TODO: iterate element by element, dump into CSV
 # TODO: take CLI arguments for num_fields, csv_dir
+
+import sys # for access to argv
+import psf_to_csv as to_csv # the module to output as csv
+csvpath = sys.argv[1]
+to_csv.grid_to_csv(allValues, csvpath)
+
 # Close the analysis
 huygens_psf.Close()
 
