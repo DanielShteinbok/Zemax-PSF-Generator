@@ -114,36 +114,55 @@ print('Serial #: ', TheApplication.SerialCode)
 #print(str(field.GetFieldNumber()))
 #print(field.GetFieldNumber)
 
-# Open the Huygens PSF analysis
-huygens_psf = TheSystem.Analyses.New_HuygensPsf()
+def getPSFValue(fieldnum, ImageDelta=3, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_32x32):
+    # Open the Huygens PSF analysis
+    huygens_psf = TheSystem.Analyses.New_HuygensPsf()
 
-# Get analysis settings
-huygens_psf_settings = huygens_psf.GetSettings()
-# MY ADDITION: Cast huygens_psf_settings
-#huygens_psf_settings = typing.cast(huygens_psf_settings, ZOSAPI.Analysis.Settings.Psf.IAS_HuygensPsf)
+    # Get analysis settings
+    huygens_psf_settings = huygens_psf.GetSettings()
+    # MY ADDITION: Cast huygens_psf_settings
+    #huygens_psf_settings = typing.cast(huygens_psf_settings, ZOSAPI.Analysis.Settings.Psf.IAS_HuygensPsf)
 
-# Get field number
-field_number = huygens_psf_settings.Field.GetFieldNumber()
+    # set field number
+    huygens_psf_settings.Field.SetFieldNumber(fieldnum)
 
-# Print field number
-print('Field number: ' + str(field_number))
+    # set image sample size
+    huygens_psf_settings.ImageSampleSize=ImageSampleSize
 
-# MY ADDITION
-#huygens_psf_settings.Field.SetFieldNumber(2)
-huygens_psf.ApplyAndWaitForCompletion()
-print("Number of grids: ", huygens_psf.GetResults().NumberOfDataGrids)
-print("Number of series: ", huygens_psf.GetResults().NumberOfDataSeries)
-print(huygens_psf.GetResults().GetDataGrid(0).Values)
-allValues = huygens_psf.GetResults().GetDataGrid(0).Values
+    # set image delta (pixel size)
+    huygens_psf_settings.ImageDelta = ImageDelta
+
+    # Get field number
+    field_number = huygens_psf_settings.Field.GetFieldNumber()
+
+    # Print field number
+    print('Field number: ' + str(field_number))
+
+    # MY ADDITION
+    huygens_psf.ApplyAndWaitForCompletion()
+    allValues = huygens_psf.GetResults().GetDataGrid(0).Values
+
+    # Close the analysis
+    huygens_psf.Close()
+    return allValues
+
 #print(np.asarray(allValues)[0,0])
 # TODO: iterate element by element, dump into CSV
 # TODO: take CLI arguments for num_fields, csv_dir
 
 import sys # for access to argv
 import psf_to_csv as to_csv # the module to output as csv
-csvpath = sys.argv[1]
-to_csv.grid_to_csv(allValues, csvpath)
 
-# Close the analysis
-huygens_psf.Close()
+# if there is only one argument given (len(argv)==2) that argument is the name of a csv to create.
+if len(sys.argv) == 2:
+    csvpath = sys.argv[1]
+    to_csv.grid_to_csv(getPSFValue(1), csvpath)
+elif len(sys.argv) == 3:
+    # first argument is the path to the directory into which to dump all CSVs
+    dirpath = sys.argv[1]
+    # second argument is the number of PSFs
+    for psfnum in range(1, int(sys.argv[2])+1):
+        # generate the name of the new CSV
+        csvpath = dirpath.rstrip("/") + "/F" + str(psfnum) + ".csv"
+        to_csv.grid_to_csv(getPSFValue(psfnum), csvpath)
 
