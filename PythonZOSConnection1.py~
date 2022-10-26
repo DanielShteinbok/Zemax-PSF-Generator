@@ -1,6 +1,5 @@
 import clr, os, winreg
 from itertools import islice
-import csv
 
 # This boilerplate requires the 'pythonnet' module.
 # The following instructions are for installing the 'pythonnet' module via pip:
