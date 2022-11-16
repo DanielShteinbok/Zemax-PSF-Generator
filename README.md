@@ -17,3 +17,6 @@ Open up a terminal emulator, run:
 `fieldcount`: the number of fields
 
 `metapath`: the path to the metafile
+
+### Example usage:
+`python PythonZOSConnection1.py psfs_probe/ 29 metafile_probe.csv`

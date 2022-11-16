@@ -7,3 +7,13 @@ my fork is meant to work with CSVs rather than MATLAB .mat files. This PSF gener
 
 ## Usage:
 Open up the model in question in Zemax. Click `Programming > Interactive Session`.
+
+Open up a terminal emulator, run:
+`python PythonZOSConnection1.py <dirpath> <fieldcount> <metapath>`
+
+### Arguments:
+`dirpath`: the path to the directory where the PSF files will be saved
+
+`fieldcount`: the number of fields
+
+`metapath`: the path to the metafile
