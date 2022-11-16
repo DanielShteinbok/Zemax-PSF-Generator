@@ -2,3 +2,4 @@ csv_dir/*
 probe_psfs/*
 metafile_probe.csv
 tempfile*
+textdump.txt
