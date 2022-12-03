@@ -115,7 +115,7 @@ print('Serial #: ', TheApplication.SerialCode)
 #print(str(field.GetFieldNumber()))
 #print(field.GetFieldNumber)
 
-def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_32x32):
+def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_64x64, PupilSampleSize=ZOSAPI.Analysis.SampleSizes.S_256x256, wavelength=2):
     # callback is passed the results, and does whatever you want it to do. I will use this to call GetTextFile.
     # Open the Huygens PSF analysis
     huygens_psf = TheSystem.Analyses.New_HuygensPsf()
@@ -129,7 +129,13 @@ def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOS
     huygens_psf_settings.Field.SetFieldNumber(fieldnum)
 
     # set image sample size
-    huygens_psf_settings.ImageSampleSize=ImageSampleSize
+    huygens_psf_settings.ImageSampleSize = ImageSampleSize
+
+    # set the pupil sampling
+    huygens_psf_settings.PupilSampleSize = PupilSampleSize
+
+    # set the wavelength
+    huygens_psf_settings.Wavelength.SetWavelengthNumber(wavelength)
 
     # set image delta (pixel size)
     huygens_psf_settings.ImageDelta = ImageDelta
@@ -172,7 +178,7 @@ if len(sys.argv) == 2:
     #results.GetDataGrid(0).Values
     #to_csv.grid_to_csv(results.GetDataGrid(0).Values, csvpath)
     callback = lambda results: results.GetTextFile(path_to_here + "\\textdump.txt")
-    to_csv.grid_to_csv(getPSFValue(1, callback=callback), csvpath)
+    to_csv.grid_to_csv(getPSFValue(1, callback=callback), csvpath, dims=(64,64))
 elif len(sys.argv) == 4:
     # first argument is the path to the directory into which to dump all CSVs
     dirpath = sys.argv[1]
@@ -195,7 +201,7 @@ elif len(sys.argv) == 4:
         # the latter is on line 16, and looks like:
         # Center coordinates   :   [num], [num] Millimeters
         callback_dump_text = lambda results: results.GetTextFile(path_to_here + "\\textdump.txt")
-        to_csv.grid_to_csv(getPSFValue(psfnum, callback=callback_dump_text), csvpath)
+        to_csv.grid_to_csv(getPSFValue(psfnum, callback=callback_dump_text), csvpath, dims=(64,64))
         # textdump should have been written
         field_x = TheSystem.SystemData.Fields.GetField(psfnum).X
         field_y = TheSystem.SystemData.Fields.GetField(psfnum).Y
