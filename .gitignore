@@ -1,5 +1,7 @@
 csv_dir/*
 probe_psfs/*
+probe_psfs_depth2/*
+probe_psfs_depth3/*
 probe_psfs_mark/*
 metafile_probe.csv
 tempfile*
