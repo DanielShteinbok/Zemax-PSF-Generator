@@ -171,15 +171,30 @@ import psf_to_csv as to_csv # the module to output as csv
 # path to the directory in which this file resides, such that afterward you can use a relative path
 path_to_here = os.getcwd()
 print(path_to_here)
+
+# if no arguments are given, print usage instructions
+if len(sys.argv) == 1:
+    print("For usage instructions, see README.md")
 # if there is only one argument given (len(argv)==2) that argument is the name of a csv to create.
-if len(sys.argv) == 2:
+elif len(sys.argv) == 2:
     csvpath = sys.argv[1]
     #results = getPSFValue(1)
     #results.GetDataGrid(0).Values
     #to_csv.grid_to_csv(results.GetDataGrid(0).Values, csvpath)
     callback = lambda results: results.GetTextFile(path_to_here + "\\textdump.txt")
     to_csv.grid_to_csv(getPSFValue(1, callback=callback), csvpath, dims=(64,64))
-elif len(sys.argv) == 4:
+# we know we don't want more than 3 arguments
+elif len(sys.argv) > 4:
+    raise ValueError("Too many arguments")
+#elif len(sys.argv) == 4:
+# Thus, we have either 2 or 3 arguments
+else:
+    if len(sys.argv) == 3:
+        num_fields = TheSystem.SystemData.Fields.NumberOfFields
+        metafile_path = sys.argv[2]
+    elif len(sys.argv) == 4:
+        num_fields = sys.argv[2]
+        metafile_path = sys.argv[3]
     # first argument is the path to the directory into which to dump all CSVs
     dirpath = sys.argv[1]
     # second argument is the number of PSFs
@@ -188,7 +203,7 @@ elif len(sys.argv) == 4:
     # the dictionary that will store all the meta info
     meta_dict = []
 
-    for psfnum in range(1, int(sys.argv[2])+1):
+    for psfnum in range(1, int(num_fields)+1):
         # generate the name of the new CSV
         csvpath = dirpath.rstrip("/") + "/F" + str(psfnum) + ".csv"
         #to_csv.grid_to_csv(getPSFValue(psfnum), csvpath)
@@ -210,7 +225,7 @@ elif len(sys.argv) == 4:
                 to_csv.textdump_to_meta(path_to_here + "\\textdump.txt", psfnum, field_x, field_y)
                 )
 
-    with open(sys.argv[3], 'w', newline='') as metafile:
+    with open(metafile_path, 'w', newline='') as metafile:
         fieldnames = ["Field Number","X (mm)","Y (mm)","X image (px)","Y image (px)"]
         writer = csv.DictWriter(metafile, fieldnames=fieldnames)
         writer.writeheader()
