@@ -115,7 +115,7 @@ print('Serial #: ', TheApplication.SerialCode)
 #print(str(field.GetFieldNumber()))
 #print(field.GetFieldNumber)
 
-def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_64x64, PupilSampleSize=ZOSAPI.Analysis.SampleSizes.S_256x256, wavelength=2):
+def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_64x64, PupilSampleSize=ZOSAPI.Analysis.SampleSizes.S_256x256, wavelength=2, Normalize=False):
     # callback is passed the results, and does whatever you want it to do. I will use this to call GetTextFile.
     # Open the Huygens PSF analysis
     huygens_psf = TheSystem.Analyses.New_HuygensPsf()
@@ -139,6 +139,9 @@ def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOS
 
     # set image delta (pixel size)
     huygens_psf_settings.ImageDelta = ImageDelta
+
+    # set the normalization
+    huygens_psf_settings.Normalize = Normalize
 
     # Get field number
     field_number = huygens_psf_settings.Field.GetFieldNumber()
