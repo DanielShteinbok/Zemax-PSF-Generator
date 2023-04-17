@@ -206,6 +206,8 @@ else:
     # the dictionary that will store all the meta info
     meta_dict = []
 
+    if not os.path.isdir(dirpath):
+        os.makedirs(dirpath)
     for psfnum in range(1, int(num_fields)+1):
         # generate the name of the new CSV
         csvpath = dirpath.rstrip("/") + "/F" + str(psfnum) + ".csv"
