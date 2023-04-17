@@ -17,7 +17,11 @@ Open up a terminal emulator, run:
 `metapath`: the path to which you want the program to save the metafile it creates. Can be any arbitrary (valid) path or filename.
 
 ### Example usage:
-`python PythonZOSConnection1.py psfs_probe/ metafile_probe.csv`
+Suppose you have created an empty subdirectory in this folder called `my_psfs`. You can run the following command:
+
+`python PythonZOSConnection1.py my_psfs/ my_metafile.csv`
+
+This will put all the PSF CSV files into the directory `my_psfs`, and it will also create a new file called `my_metafile.csv` in thus (upper) directory.
 
 # Field Maker
 This is a script to create a whole bunch of fields for which we may later want to sample PSFs with
