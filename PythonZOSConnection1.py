@@ -144,8 +144,8 @@ def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOS
     # set the normalization, only if setNormalize is True
     # this seems really silly to do, but it looks like there is some default setting
     # that differs from both True and False for Normalize
-    if bool(setNormalize):
-        huygens_psf_settings.Normalize = bool(Normalize)
+    if setNormalize:
+        huygens_psf_settings.Normalize = bool(Normalize == "True")
 
     # Get field number
     field_number = huygens_psf_settings.Field.GetFieldNumber()
@@ -218,6 +218,10 @@ else:
             kwargs[sys.argv[i]] = sys.argv[i+1]
             i += 2
 
+    if "Normalize" in kwargs:
+        kwargs["setNormalize"]=True
+    else:
+        kwargs["setNormalize"]=False
     dirpath = sys.argv[1]
     # second argument is the number of PSFs
     # the third argument is the path to the meta file
