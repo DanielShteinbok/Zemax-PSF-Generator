@@ -115,7 +115,8 @@ print('Serial #: ', TheApplication.SerialCode)
 #print(str(field.GetFieldNumber()))
 #print(field.GetFieldNumber)
 
-def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_64x64, PupilSampleSize=ZOSAPI.Analysis.SampleSizes.S_256x256, wavelength=2, Normalize=False):
+def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOSAPI.Analysis.SampleSizes.S_64x64, PupilSampleSize=ZOSAPI.Analysis.SampleSizes.S_256x256, wavelength=2, 
+        Normalize=False, setNormalize=False):
     # callback is passed the results, and does whatever you want it to do. I will use this to call GetTextFile.
     # Open the Huygens PSF analysis
     huygens_psf = TheSystem.Analyses.New_HuygensPsf()
@@ -126,7 +127,7 @@ def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOS
     #huygens_psf_settings = typing.cast(huygens_psf_settings, ZOSAPI.Analysis.Settings.Psf.IAS_HuygensPsf)
 
     # set field number
-    huygens_psf_settings.Field.SetFieldNumber(fieldnum)
+    huygens_psf_settings.Field.SetFieldNumber(int(fieldnum))
 
     # set image sample size
     huygens_psf_settings.ImageSampleSize = ImageSampleSize
@@ -140,8 +141,11 @@ def getPSFValue(fieldnum, ImageDelta=3, callback=lambda x:x, ImageSampleSize=ZOS
     # set image delta (pixel size)
     huygens_psf_settings.ImageDelta = ImageDelta
 
-    # set the normalization
-    huygens_psf_settings.Normalize = Normalize
+    # set the normalization, only if setNormalize is True
+    # this seems really silly to do, but it looks like there is some default setting
+    # that differs from both True and False for Normalize
+    if bool(setNormalize):
+        huygens_psf_settings.Normalize = bool(Normalize)
 
     # Get field number
     field_number = huygens_psf_settings.Field.GetFieldNumber()
@@ -186,19 +190,34 @@ elif len(sys.argv) == 2:
     #to_csv.grid_to_csv(results.GetDataGrid(0).Values, csvpath)
     callback = lambda results: results.GetTextFile(path_to_here + "\\textdump.txt")
     to_csv.grid_to_csv(getPSFValue(1, callback=callback), csvpath, dims=(64,64))
-# we know we don't want more than 3 arguments
-elif len(sys.argv) > 4:
-    raise ValueError("Too many arguments")
+
+
 #elif len(sys.argv) == 4:
 # Thus, we have either 2 or 3 arguments
 else:
-    if len(sys.argv) == 3:
-        num_fields = TheSystem.SystemData.Fields.NumberOfFields
-        metafile_path = sys.argv[2]
-    elif len(sys.argv) == 4:
-        num_fields = sys.argv[2]
-        metafile_path = sys.argv[3]
+    kwargs = {}
+    num_fields = TheSystem.SystemData.Fields.NumberOfFields
+    metafile_path = sys.argv[2]
+    #elif len(sys.argv) == 4:
+        #num_fields = sys.argv[2]
+        #metafile_path = sys.argv[3]
     # first argument is the path to the directory into which to dump all CSVs
+    # EDIT: previously, we didn't want too many arguments
+    # now, we want to use the additional arguments as arguments for the extraction of the PSFs
+    # Also, we no longer want to have to ever specify the number of fields to examine.
+    if len(sys.argv) > 3:
+        #raise ValueError("Too many arguments")
+        # Crazy CLI! arguments will be like: <argname> <argval> ...
+        # But the first 3 arguments will be respectively: __name__, <dirpath>, <metapath>
+        # so that means we must have an odd number of arguments
+        if len(sys.argv) % 2 != 1:
+            raise ValueError("Must have arguments passed as [<argname> <argval>] ... You either have a name or value that is missing")
+        # collect all the values that we want to pass to getPSFValue
+        i = 3
+        while i+1 < len(sys.argv):
+            kwargs[sys.argv[i]] = sys.argv[i+1]
+            i += 2
+
     dirpath = sys.argv[1]
     # second argument is the number of PSFs
     # the third argument is the path to the meta file
@@ -221,7 +240,7 @@ else:
         # the latter is on line 16, and looks like:
         # Center coordinates   :   [num], [num] Millimeters
         callback_dump_text = lambda results: results.GetTextFile(path_to_here + "\\textdump.txt")
-        to_csv.grid_to_csv(getPSFValue(psfnum, callback=callback_dump_text), csvpath, dims=(64,64))
+        to_csv.grid_to_csv(getPSFValue(psfnum, callback=callback_dump_text, **kwargs), csvpath, dims=(64,64))
         # textdump should have been written
         field_x = TheSystem.SystemData.Fields.GetField(psfnum).X
         field_y = TheSystem.SystemData.Fields.GetField(psfnum).Y
