@@ -11,3 +11,4 @@ textdump.txt
 !.gitignore
 !.git*
 *~
+*zip
