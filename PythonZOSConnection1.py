@@ -254,7 +254,7 @@ else:
                 )
 
     with open(metafile_path, 'w', newline='') as metafile:
-        fieldnames = ["Field Number","X (mm)","Y (mm)","X image (px)","Y image (px)"]
+        fieldnames = ["Field Number","X (mm)","Y (mm)","X image (px)","Y image (px)", "Strehl ratio"]
         writer = csv.DictWriter(metafile, fieldnames=fieldnames)
         writer.writeheader()
         for row in meta_dict:

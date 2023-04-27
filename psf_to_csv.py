@@ -27,7 +27,15 @@ def textdump_to_meta(filepath, field_num, field_x, field_y, imagedelta=3):
     """
     with open(filepath, 'r', encoding="utf-16") as textdump:
         # iterate through the dumped file, insert gathered info into meta_dict
-        for i in range(15):
+        #for i in range(15):
+        #    textdump.readline()
+        # line 12 should have the Strehl ratio
+        for i in range(11):
+            textdump.readline()
+        strehl_ratio_text = textdump.readline()
+        strehl_ratio = float(strehl_ratio_text.split(':')[1].strip())
+
+        for i in range(3):
             textdump.readline()
         # line 16, should have the center coordinates
         # of the format:
@@ -45,4 +53,5 @@ def textdump_to_meta(filepath, field_num, field_x, field_y, imagedelta=3):
 
         return {"Field Number":field_num,
                 "X (mm)":field_x, "Y (mm)":field_y,
-                "X image (px)":x_img_px, "Y image (px)":y_img_px }
+                "X image (px)":x_img_px, "Y image (px)":y_img_px,
+                "Strehl ratio":strehl_ratio}
